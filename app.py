@@ -10,9 +10,21 @@ from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 from scipy.stats import rayleigh
 from db.api import get_wind_data, get_wind_data_by_id
+from kafka import KafkaConsumer
+from json import loads
 
 
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 5000)
+
+consumer = KafkaConsumer(
+    'BTC',
+    bootstrap_servers=['localhost:9092'],
+    group_id='dash',
+    #auto_offset_reset='latest',
+    value_deserializer=lambda x: loads(x.decode('utf-8')))
+
+consumer.poll()
+consumer.seek_to_end()
 
 app = dash.Dash(
     __name__,
@@ -188,8 +200,16 @@ def gen_wind_speed(interval):
     :params interval: update the graph based on an interval
     """
 
-    total_time = get_current_time()
-    df = get_wind_data(total_time - 200, total_time)
+    df = pd.DataFrame(columns = ["Speed", "SpeedError", "Direction"])
+    while True:
+        messages = consumer.poll(timeout_ms=500)
+        for tp, msg in messages.items():
+            print(f"{tp.topic}:{tp.partition}:{msg[0].offset}: value={msg[0].value}")
+            row = pd.DataFrame([[msg[0].value, random.uniform(0, 5), 100+random.uniform(-5, 5)]],
+                columns = ["Speed", "SpeedError", "Direction"])
+            df = df.append(row).tail(100)
+    # total_time = get_current_time()
+    # df = get_wind_data(total_time - 200, total_time)
 
     trace = dict(
         type="scatter",

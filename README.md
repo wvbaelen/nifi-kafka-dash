@@ -1,17 +1,13 @@
-# Dash Wind Streaming
+# Bitcoin Price Streaming
+
+![demo.gif](demo.gif)
 
 ## About this app
 
-This app queries a SQL database every second and uses the data to update the wind speed diagram and the wind direction diagram. 
-The wind speed values are then binned in real time to generate the wind histogram plot.
-
-Original repo: [plotly/dash-wind-streaming](https://github.com/plotly/dash-wind-streaming)
+This app polls kafka every second and uses the data to update the line chart.
 
 
 ## How to run this app
-
-(The following instructions apply to Posix/bash. Windows users should check
-[here](https://docs.python.org/3/library/venv.html).)
 
 First, clone this repository and open a terminal inside the root folder.
 
@@ -35,10 +31,8 @@ python app.py
 ```
 Open a browser at http://127.0.0.1:8050
 
-## Screenshots
+## Deploying app to production
 
-![demo.gif](demo.gif)
-
-## Resources
-
-- To learn more about Dash, check out our [documentation](https://plot.ly/dash).
+```bash
+gunicorn -w 3 -b 0.0.0.0:80 app:server
+```

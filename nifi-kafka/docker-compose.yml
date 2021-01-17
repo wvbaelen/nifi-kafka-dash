@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  nifi:
+    image: apache/nifi:1.12.1
+    hostname: nifi
+    container_name: nifi
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nifi-current/conf:/opt/nifi/nifi-current/conf
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.3
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+        - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    image: confluentinc/cp-kafka:5.5.3
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    expose:
+     - "9093"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: BTC:1:1,ETH:1:1,LINK:1:1
+    links:
+      - zookeeper
+      - nifi
+    depends_on:
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

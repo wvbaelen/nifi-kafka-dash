@@ -3,9 +3,7 @@ import plotly
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
-import random
 import threading
-import time
 from dash.dependencies import Output, Input
 from collections import deque
 from kafka import KafkaConsumer
@@ -20,7 +18,8 @@ app.layout = html.Div(
         dcc.Graph(id='live-graph', animate=True),
         dcc.Interval(
             id='graph-update',
-            interval=1*1000
+            interval=1*1000,
+            n_intervals=0
         ),
     ]
 )

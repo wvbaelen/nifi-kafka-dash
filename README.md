@@ -15,8 +15,8 @@ Create and activate a new virtual environment (recommended) by running
 the following:
 
 ```bash
-python3 -m venv myvenv
-source myvenv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 ```
 
 Install the requirements:
@@ -24,6 +24,14 @@ Install the requirements:
 ```bash
 pip install -r requirements.txt
 ```
+
+Run the NiFi and Kafka containers and start the pipeline at http://localhost:8080/nifi:
+
+```bash
+cd nifi-kafka
+docker-compose up
+```
+
 Run the app:
 
 ```bash
